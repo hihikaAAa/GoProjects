@@ -16,7 +16,8 @@ type Config struct { // Конфиг будет такой же , как в .yam
 
 type HTTPServer struct {
 	Address     string        `yaml:"address" env-default:"localhost:8080"`
-	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
+	ReadTimeout     time.Duration `yaml:"rtimeout" env-default:"4s"`
+	WriteTimeout  time.Duration `yaml:"wtimeout" env-default:"6s"`
 	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
 }
 

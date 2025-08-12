@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/hihikaAAa/GoProjects/url-shortener/internal/storage"
@@ -46,11 +47,12 @@ func New(storagePath string)(*Storage, error){
 
 func (s *Storage) SaveURL(urlToSave string, alias string) (int64, error){
 	const op = "storage.sqlite.SaveURL"
-	stmt,err := s.db.Prepare("INSERT INTO url(url,alias) VALUES(?, ?)")
+	stmt,err := s.db.Prepare("INSERT INTO url(url,alias) VALUES(?, ?)") // Подготовить запрос
+	
 	if err != nil{
 		return 0, fmt.Errorf("%s: %w,",op ,err)
 	}
-	res,err := stmt.Exec(urlToSave,alias)
+	res,err := stmt.Exec(urlToSave,alias) // Выполнить запрос
 	if err != nil{
 		if sqliteErr, ok := err.(sqlite3.Error); ok && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique{
 			return 0, fmt.Errorf("%s: %w", op, storage.ErrUrlExists)
@@ -64,3 +66,43 @@ func (s *Storage) SaveURL(urlToSave string, alias string) (int64, error){
 	}
 	return id, nil
 }
+
+func (s *Storage) GetURL(alias string)(string, error){
+	const op = "storage.sqlite.GetURL"
+
+	stmt, err := s.db.Prepare("SELECT url FROM url where alias=?")
+	if err != nil{
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	var rURL string
+	err = stmt.QueryRow(alias).Scan(&rURL) // Найти ряд 
+	if errors.Is(err,sql.ErrNoRows){
+		return "", fmt.Errorf("%s : %w", op, storage.ErrURLNotFound)
+	}
+	if err != nil{
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	return rURL, nil
+}
+
+func (s *Storage) DeleteURL(alias string) error{
+	const op = "storage.sqlite.DeleteURL"
+
+	res,err := s.db.Exec("DELETE FROM url where alias=?") // одноразовое выполнение
+	if err !=nil{
+		return fmt.Errorf("%s: %w",op,err)
+	}
+
+	n, err := res.RowsAffected() // функция, показывающая сколько рядов удалили
+	if err != nil{
+		return fmt.Errorf("%s: get rows affected: %w", op, err)
+	}
+	if n == 0{
+		return fmt.Errorf("%s: %w", op, storage.ErrURLNotFound)
+	}
+	return nil
+}
+
+
