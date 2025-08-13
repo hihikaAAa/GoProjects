@@ -44,11 +44,15 @@ func main(){
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat) // для красивых логов. Использовать осторожно, если можем привязаться к chi
 
-	router.Route("/api/v1", func(api chi.Router) {
-		api.Post("/url", save.New(log, storage))      
-		api.Put("/url/{alias}", update.New(log, storage))      
-		api.Delete("/url/{alias}",delete.New(log, storage))      
+	router.Route("/url", func(r chi.Router) {  // Добавление авторизации
+		 r.Use(middleware.BasicAuth("url-shortener", map[string]string{
+			cfg.HTTPServer.User : cfg.HTTPServer.Password, // Чтобы добавить новых пользователей - просто перечисляем новые логины и пароли
+		 }))
+		r.Post("/", save.New(log, storage))   
+		r.Put("/{alias}", update.New(log, storage))      
+		r.Delete("/{alias}",delete.New(log, storage)) 
 	})
+
 	router.Get("/{alias}", redirect.New(log, storage))
 
 	log.Info("starting server", slog.String("address", cfg.Address))

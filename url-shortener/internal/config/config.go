@@ -19,6 +19,8 @@ type HTTPServer struct {
 	ReadTimeout     time.Duration `yaml:"rtimeout" env-default:"4s"`
 	WriteTimeout  time.Duration `yaml:"wtimeout" env-default:"6s"`
 	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
+	User string `yaml:"user" env-required:"true"` // Храним в конфиг файле
+	Password string `yaml:"password" env-required:"true" env:"HTTP_SERVER_PASSWORD"` // Храним в секретах гитхаба, Git Actions Secrets
 }
 
 func MustLoad() *Config{ //Приставка Must используется, когда функция вместо возврата ошибки будет паниковать

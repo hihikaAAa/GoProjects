@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator"
 
@@ -16,11 +17,10 @@ import (
 
 type Request struct{
 	URL string `json:"url" validate:"required,url"` 
-	Alias string `json:"alias,omitempty"`
 }
 
 type URLUpdater interface{
-	UpdateURL(urlToUpdate, alias string)(error)
+	UpdateURL(alias, newURL string)(error)
 }
 
 func New(log *slog.Logger, urlUpdater URLUpdater) http.HandlerFunc{
@@ -53,7 +53,7 @@ func New(log *slog.Logger, urlUpdater URLUpdater) http.HandlerFunc{
 			return
 		}
 
-		alias := req.Alias
+		alias := chi.URLParam(r,"alias")
 		if alias == ""{
 			log.Info("alias not found")
 
