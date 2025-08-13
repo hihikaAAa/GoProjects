@@ -15,6 +15,7 @@ import (
 	"github.com/hihikaAAa/GoProjects/url-shortener/internal/storage/sqlite"
 	"github.com/hihikaAAa/GoProjects/url-shortener/internal/http-server/handlers/url/redirect"
 	"github.com/hihikaAAa/GoProjects/url-shortener/internal/http-server/handlers/url/delete"
+	"github.com/hihikaAAa/GoProjects/url-shortener/internal/http-server/handlers/url/update"
 )
 const(
 	envLocal = "local"
@@ -40,9 +41,12 @@ func main(){
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat) // для красивых логов. Использовать осторожно, если можем привязаться к chi
 
-	router.Post("/url", save.New(log,storage)) // Подключили хендлер на save
-	router.Get("/{alias}", redirect.New(log,storage)) // Подключение redirect. Ищет в бд сохраненный URL и делает на него redirect. Благодаря URLFormat и {alias} мы получим alias
-	router.Get("/{alias}", delete.New(log,storage)) // Подключение delete.
+	router.Route("/api/v1", func(api chi.Router) {
+		api.Post("/url", save.New(log, storage))      
+		api.Put("/url/{alias}", update.New(log, storage))      
+		api.Delete("/url/{alias}",delete.New(log, storage))      
+	})
+	router.Get("/{alias}", redirect.New(log, storage))
 
 	log.Info("starting server", slog.String("address", cfg.Address))
 	
