@@ -13,6 +13,7 @@ import (
 	"github.com/hihikaAAa/GoProjects/url-shortener/internal/lib/logger/handlers/slogpretty"
 	"github.com/hihikaAAa/GoProjects/url-shortener/internal/lib/logger/sl"
 	"github.com/hihikaAAa/GoProjects/url-shortener/internal/storage/sqlite"
+	"github.com/hihikaAAa/GoProjects/url-shortener/internal/http-server/handlers/url/redirect"
 )
 const(
 	envLocal = "local"
@@ -39,6 +40,7 @@ func main(){
 	router.Use(middleware.URLFormat) // для красивых логов. Использовать осторожно, если можем привязаться к chi
 
 	router.Post("/url", save.New(log,storage)) // Подключили хендлер на save
+	router.Get("/{alias}", redirect.New(log,storage)) // Подключение redirect. Ищет в бд сохраненный URL и делает на него redirect. Благодаря URLFormat и {alias} мы получим alias
 
 	log.Info("starting server", slog.String("address", cfg.Address))
 	
