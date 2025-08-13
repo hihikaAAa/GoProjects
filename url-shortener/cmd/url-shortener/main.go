@@ -7,6 +7,8 @@ import (
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
+	"github.com/joho/godotenv"
+
 	"github.com/hihikaAAa/GoProjects/url-shortener/internal/config"
 	"github.com/hihikaAAa/GoProjects/url-shortener/internal/http-server/handlers/url/save"
 	"github.com/hihikaAAa/GoProjects/url-shortener/internal/http-server/middleware/logger"
@@ -23,6 +25,7 @@ const(
 	envProd = "prod"
 )
 func main(){
+	_ = godotenv.Load("local.env")
 	cfg := config.MustLoad()
 	
 	log := setupLogger(cfg.Env)
