@@ -14,6 +14,7 @@ import (
 	"github.com/hihikaAAa/GoProjects/url-shortener/internal/lib/logger/sl"
 	"github.com/hihikaAAa/GoProjects/url-shortener/internal/storage/sqlite"
 	"github.com/hihikaAAa/GoProjects/url-shortener/internal/http-server/handlers/url/redirect"
+	"github.com/hihikaAAa/GoProjects/url-shortener/internal/http-server/handlers/url/delete"
 )
 const(
 	envLocal = "local"
@@ -41,6 +42,7 @@ func main(){
 
 	router.Post("/url", save.New(log,storage)) // Подключили хендлер на save
 	router.Get("/{alias}", redirect.New(log,storage)) // Подключение redirect. Ищет в бд сохраненный URL и делает на него redirect. Благодаря URLFormat и {alias} мы получим alias
+	router.Get("/{alias}", delete.New(log,storage)) // Подключение delete.
 
 	log.Info("starting server", slog.String("address", cfg.Address))
 	
