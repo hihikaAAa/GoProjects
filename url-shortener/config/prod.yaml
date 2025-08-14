@@ -1,0 +1,8 @@
+env : "prod" 
+storage_path: "./storage.db"
+http_server:
+    address: "0.0.0.0:8080" 
+    rtimeout: 4s
+    wtimeout: 6s
+    idle_timeout: 60s 
+    user: "hihika"
